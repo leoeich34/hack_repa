@@ -27,10 +27,24 @@ export interface PredictionResponse {
   }>;
 }
 
+export interface ClientListItem {
+  id: string;
+  name: string;
+  segment: 'Premium' | 'Middle' | 'Mass';
+  predicted_income: number;
+  risk_level: 'high' | 'medium' | 'low';
+  last_active: string;
+}
+
 export const apiClient = {
   async getPrediction(id: string): Promise<PredictionResponse> {
     // Делаем запрос на наш бэкенд
     const response = await axios.get(`${API_URL}/clients/${id}/predict`);
+    return response.data;
+  },
+
+  async getClients(): Promise<ClientListItem[]> {
+    const response = await axios.get(`${API_URL}/clients`);
     return response.data;
   }
 };

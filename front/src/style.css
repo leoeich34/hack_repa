@@ -7,6 +7,19 @@ body {
   color: #0B1F35;
 }
 
+.dark body {
+  background-color: #060e1a; /* Очень темный синий (почти черный) */
+  color: #ffffff;
+}
+
+/* Адаптация скроллбара для темной темы */
+.dark ::-webkit-scrollbar-track {
+  background: #0B1F35;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #374151;
+}
+
 @layer components {
   .glass-panel {
     @apply bg-white/70 backdrop-blur-xl border border-white/50 shadow-xl;

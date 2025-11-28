@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import MainLayout from '../layouts/MainLayout.vue'
 import {
   ArrowRightIcon,
   MagnifyingGlassIcon,
@@ -41,43 +40,46 @@ const features = [
 </script>
 
 <template>
-  <MainLayout>
-    <div class="flex flex-col min-h-[85vh] relative">
+  <div class="flex flex-col min-h-[85vh] relative animate-fade-in-up">
 
-      <!-- ВЕРХНЯЯ ЧАСТЬ: Герой -->
+      <!-- ВЕРХНЯЯ ЧАСТЬ -->
       <div class="flex-1 flex flex-col lg:flex-row items-center justify-center gap-12 lg:gap-24 relative z-10 pt-10">
 
-        <!-- Левая часть: Текст -->
+        <!-- Левая часть -->
         <div class="flex-1 max-w-xl text-center lg:text-left z-20">
-          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/40 border border-white/50 text-[#EF3124] font-bold text-xs uppercase tracking-widest mb-8 backdrop-blur-md shadow-sm hover:bg-white/60 transition-colors cursor-default">
+          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/40 border border-white/50 text-[#EF3124] font-bold text-xs uppercase tracking-widest mb-8 backdrop-blur-md shadow-sm hover:bg-white/60 transition-colors cursor-default dark:bg-white/10 dark:border-white/10">
             <span class="w-2 h-2 rounded-full bg-[#EF3124] animate-pulse"></span>
             Alfa AI Prediction 2.0
           </div>
 
-          <h1 class="text-5xl lg:text-7xl font-bold text-[#0B1F35] leading-tight mb-6 tracking-tight">
+          <!-- dark:text-white -->
+          <h1 class="text-5xl lg:text-7xl font-bold text-[#0B1F35] leading-tight mb-6 tracking-tight dark:text-white">
             Будущее <br/>
             <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#EF3124] to-[#B91C10]">уже здесь</span>
           </h1>
 
-          <p class="text-lg text-gray-600 mb-10 leading-relaxed max-w-md mx-auto lg:mx-0">
+          <!-- dark:text-gray-400 -->
+          <p class="text-lg text-gray-600 mb-10 leading-relaxed max-w-md mx-auto lg:mx-0 dark:text-gray-400">
             Платформа предиктивной аналитики для формирования персональных предложений с точностью до 98%.
           </p>
 
-          <!-- Поле поиска -->
+          <!-- ПОЛЕ ПОИСКА -->
           <div
             class="relative group transition-all duration-300"
             :class="isFocused ? 'scale-105' : ''"
           >
             <div class="absolute -inset-1 bg-gradient-to-r from-[#EF3124] to-orange-500 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
 
-            <div class="relative flex items-center bg-white rounded-2xl p-2 shadow-xl ring-1 ring-gray-900/5">
+            <!-- dark:bg-white/10 dark:ring-white/10 -->
+            <div class="relative flex items-center bg-white rounded-2xl p-2 shadow-xl ring-1 ring-gray-900/5 dark:bg-[#1f2937] dark:ring-white/10">
               <div class="pl-4 text-gray-400">
                 <MagnifyingGlassIcon class="w-6 h-6" />
               </div>
+              <!-- dark:text-white -->
               <input
                 v-model="clientId"
                 type="text"
-                class="flex-1 p-4 bg-transparent outline-none text-[#0B1F35] font-medium text-lg placeholder-gray-400"
+                class="flex-1 p-4 bg-transparent outline-none text-[#0B1F35] font-medium text-lg placeholder-gray-400 dark:text-white"
                 placeholder="ID клиента (например, 777)"
                 @focus="isFocused = true"
                 @blur="isFocused = false"
@@ -93,27 +95,28 @@ const features = [
             </div>
           </div>
 
-          <div class="mt-8 flex items-center justify-center lg:justify-start gap-4 text-sm text-gray-500 font-medium">
+          <div class="mt-8 flex items-center justify-center lg:justify-start gap-4 text-sm text-gray-500 font-medium dark:text-gray-400">
             <span class="opacity-60">Быстрый поиск:</span>
-            <button @click="clientId='1024'; search()" class="px-3 py-1 bg-white/60 border border-white rounded-md shadow-sm hover:text-[#EF3124] hover:border-[#EF3124]/30 transition">1024</button>
-            <button @click="clientId='777'; search()" class="px-3 py-1 bg-white/60 border border-white rounded-md shadow-sm hover:text-[#EF3124] hover:border-[#EF3124]/30 transition">777</button>
+            <!-- dark:bg-white/5 dark:border-white/10 -->
+            <button @click="clientId='1024'; search()" class="px-3 py-1 bg-white/60 border border-white rounded-md shadow-sm hover:text-[#EF3124] hover:border-[#EF3124]/30 transition dark:bg-white/5 dark:border-white/10 dark:text-gray-300 dark:hover:text-[#EF3124]">1024</button>
+            <button @click="clientId='777'; search()" class="px-3 py-1 bg-white/60 border border-white rounded-md shadow-sm hover:text-[#EF3124] hover:border-[#EF3124]/30 transition dark:bg-white/5 dark:border-white/10 dark:text-gray-300 dark:hover:text-[#EF3124]">777</button>
           </div>
         </div>
 
         <!-- Правая часть: 3D Сцена -->
         <div class="flex-1 flex justify-center items-center h-[500px] hidden lg:flex perspective-wrapper relative">
 
-           <!-- Плавающие виджеты (Добавляют наполненности) -->
-           <div class="absolute top-20 right-10 z-10 glass-widget animate-float-slow">
-              <div class="text-xs text-gray-500">Model Accuracy</div>
+           <!-- Виджеты: dark:bg-white/5 dark:border-white/10 dark:text-gray-300 -->
+           <div class="absolute top-20 right-10 z-10 glass-widget animate-float-slow dark:bg-white/5 dark:border-white/10">
+              <div class="text-xs text-gray-500 dark:text-gray-400">Model Accuracy</div>
               <div class="text-xl font-bold text-green-600 flex items-center gap-1">
                 98.4% <ChartBarIcon class="w-4 h-4"/>
               </div>
            </div>
 
-           <div class="absolute bottom-32 left-10 z-10 glass-widget animate-float-delayed">
-              <div class="text-xs text-gray-500">Active Node</div>
-              <div class="text-sm font-bold text-[#0B1F35] flex items-center gap-1">
+           <div class="absolute bottom-32 left-10 z-10 glass-widget animate-float-delayed dark:bg-white/5 dark:border-white/10">
+              <div class="text-xs text-gray-500 dark:text-gray-400">Active Node</div>
+              <div class="text-sm font-bold text-[#0B1F35] flex items-center gap-1 dark:text-white">
                 <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                 Moscow-East-1
               </div>
@@ -129,34 +132,37 @@ const features = [
                 <div class="cube-face face-top"></div>
                 <div class="cube-face face-bottom"></div>
               </div>
-              <div class="orbit-ring ring-inner"></div>
-              <div class="orbit-ring ring-outer"></div>
+              <!-- dark:border-white/20 -->
+              <div class="orbit-ring ring-inner dark:border-white/20"></div>
+              <div class="orbit-ring ring-outer dark:border-white/20"></div>
            </div>
         </div>
       </div>
 
-      <!-- НИЖНЯЯ ЧАСТЬ: Преимущества (Заполняем пустоту) -->
+      <!-- НИЖНЯЯ ЧАСТЬ: Преимущества -->
+      <!-- dark:bg-white/5 dark:border-white/10 -->
       <div class="mt-auto pt-12 pb-6 grid grid-cols-1 md:grid-cols-3 gap-6 z-20">
         <div
           v-for="(feat, idx) in features"
           :key="idx"
-          class="bg-white/40 backdrop-blur-md border border-white/60 p-5 rounded-2xl flex items-start gap-4 hover:bg-white/60 transition-colors shadow-sm"
+          class="bg-white/40 backdrop-blur-md border border-white/60 p-5 rounded-2xl flex items-start gap-4 hover:bg-white/60 transition-colors shadow-sm dark:bg-white/5 dark:border-white/10 dark:hover:bg-white/10"
         >
           <div class="w-10 h-10 rounded-lg bg-[#EF3124]/10 text-[#EF3124] flex items-center justify-center shrink-0">
             <component :is="feat.icon" class="w-6 h-6" />
           </div>
           <div>
-            <h3 class="font-bold text-[#0B1F35]">{{ feat.title }}</h3>
-            <p class="text-sm text-gray-600 mt-1 leading-snug">{{ feat.desc }}</p>
+            <!-- dark:text-white -->
+            <h3 class="font-bold text-[#0B1F35] dark:text-white">{{ feat.title }}</h3>
+            <p class="text-sm text-gray-600 mt-1 leading-snug dark:text-gray-400">{{ feat.desc }}</p>
           </div>
         </div>
       </div>
 
     </div>
-  </MainLayout>
 </template>
 
 <style scoped>
+/* Стили куба и виджетов оставляем как были */
 .glass-widget {
   background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(10px);
