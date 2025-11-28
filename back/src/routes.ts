@@ -2,48 +2,48 @@ import { Router } from 'express';
 
 export const predictRouter = Router();
 
-// MOCK: GET /api/clients/:id/predict
-// Эмулируем работу ML и возврат данных
 predictRouter.get('/clients/:id/predict', async (req, res) => {
     const { id } = req.params;
 
-    // Имитация задержки (как будто ML думает)
-    await new Promise(r => setTimeout(r, 800));
+    // Имитация задержки
+    await new Promise(r => setTimeout(r, 600));
 
-    // Эти данные потом будет возвращать реальный ML + твоя обработка
-    const mockResponse = {
+    // Генерация случайных чисел на основе ID, чтобы было интересно переключаться
+    const baseIncome = 45000 + (parseInt(id) || 1) * 1234 % 400000;
+    const pdnValue = 10 + (parseInt(id) || 1) * 7 % 80;
+
+    res.json({
         client_id: id,
         prediction: {
-            value: 145000, // Прогноз дохода
+            value: baseIncome,
             currency: 'RUB',
-            confidence: 92 // Уверенность модели
+            confidence: 85 + (parseInt(id) % 15) // Точность от 85% до 99%
         },
-        business_info: {
-            pdn: 24.5, // Долговая нагрузка
-            segment: 'Middle+',
-            risk_level: 'low'
+        // ВАЖНО: Исправленное название поля
+        business_metrics: {
+            pdn: pdnValue,
+            segment: baseIncome > 150000 ? 'Premium' : 'Mass',
+            risk_level: pdnValue > 50 ? 'high' : 'low'
         },
-        // SHAP значения (почему такой прогноз)
         factors: [
-            { name: 'Возраст', value: 15, desc: 'Возраст 35 лет (+ к доходу)' },
-            { name: 'Стаж', value: 20, desc: 'Стаж > 5 лет' },
-            { name: 'Кредиты', value: -10, desc: 'Наличие ипотеки' }
+            { name: 'Уровень дохода (ФОТ)', value: 15.4, desc: 'Высокая белая зарплата' },
+            { name: 'Кредитная нагрузка', value: -8.2, desc: 'Наличие 2 кредитов' },
+            { name: 'Возраст', value: 4.1, desc: 'Группа 30-40 лет' },
+            { name: 'Транзакции A-Pay', value: 2.3, desc: 'Активное использование' }
         ],
-        // Рекомендации
         offers: [
             {
                 id: 1,
-                title: 'Альфа-Карта Premium',
-                text: 'Кэшбэк до 100% на категорию',
+                title: 'Кредит наличными',
+                text: 'Ваш лимит рассчитан: 1 500 000 ₽',
                 is_best: true
             },
             {
                 id: 2,
-                title: 'Кредит наличными',
-                text: 'Вам одобрено 1.5 млн ₽'
+                title: 'Alfa Travel',
+                text: 'Кэшбэк милями за полеты',
+                is_best: false
             }
         ]
-    };
-
-    res.json(mockResponse);
+    });
 });

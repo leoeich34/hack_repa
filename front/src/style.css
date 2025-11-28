@@ -6,3 +6,13 @@ body {
   background-color: #F3F4F5;
   color: #0B1F35;
 }
+
+@layer components {
+  .glass-panel {
+    @apply bg-white/70 backdrop-blur-xl border border-white/50 shadow-xl;
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-[#EF3124] to-[#B91C10];
+  }
+}
