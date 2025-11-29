@@ -1,4 +1,3 @@
-```markdown
 # 🚀 ALFA HORIZON — Предиктивная система скоринга
 
 **Alfa Horizon** — это интеллектуальная платформа для менеджеров Альфа-Банка, которая прогнозирует доход клиентов, оценивает риски и формирует персонализированные финансовые предложения в режиме реального времени.
@@ -33,7 +32,6 @@
 *   **Backend:** Node.js, Express, TypeScript (API Gateway, Business Logic).
 *   **ML Service:** Python, FastAPI, CatBoost, Pandas, Numpy.
 
----
 
 ## 🚀 Установка и запуск
 
@@ -103,5 +101,3 @@ project-root/
 
 Designed by **[d0ramilK1SS]** for Alfa Hackathon 2025.
 ```
-
----
