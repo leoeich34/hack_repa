@@ -32,7 +32,7 @@ model: CatBoostRegressor = None
 meta: dict = None
 feature_cols: List[str] = []
 fit_stats: dict = None
-model_cat_features: List[str] = []  # Точный список категорий из модели
+model_cat_features: List[str] = []
 
 
 @app.on_event("startup")
@@ -56,8 +56,6 @@ def load_model():
     feature_cols = meta["features"]
     fit_stats = meta["fit_stats"]
 
-    # ВАЖНО: Получаем индексы категориальных фичей прямо из модели
-    # и мапим их на имена колонок
     cat_indices = model.get_cat_feature_indices()
     model_cat_features = [feature_cols[i] for i in cat_indices]
 
@@ -77,13 +75,38 @@ def fill_missing_columns_optimized(df: pd.DataFrame, target_cols: List[str]) -> 
     return df
 
 
+# --- НОВАЯ ФУНКЦИЯ ДЛЯ ЛЕЧЕНИЯ ЗАПЯТЫХ ---
+def fix_decimal_separators(df: pd.DataFrame) -> pd.DataFrame:
+    """Проходит по всем колонкам object и меняет запятые на точки, затем конвертирует в числа."""
+    for col in df.columns:
+        if df[col].dtype == 'object':
+            # Сначала меняем запятую на точку
+            # Использование .str.replace намного быстрее цикла
+            temp_col = df[col].astype(str).str.replace(',', '.', regex=False)
+
+            try:
+                # Пытаемся конвертировать всю колонку в числа
+                # Если хоть одно значение не число (например 'Male'), сработает исключение
+                df[col] = pd.to_numeric(temp_col)
+            except (ValueError, TypeError):
+                # Если не получилось конвертировать (значит это реальная строка/категория),
+                # оставляем колонку как есть (с замененными запятыми или без)
+                pass
+    return df
+
+
 @app.post("/predict")
 def predict(request: PredictRequest):
     try:
+        # 1. Создаем DataFrame
         df = pd.DataFrame([request.features])
         df["id"] = request.client_id
 
-        # Список сырых колонок, которые нужны для FE (на всякий случай)
+        # 1.5. ЛЕЧИМ ЗАПЯТЫЕ (СРАЗУ!)
+        # Это решит ошибку "Cannot convert '0,0' to float"
+        df = fix_decimal_separators(df)
+
+        # Список сырых колонок для FE
         raw_cols_needed = [
             'acard', 'accountsalary_out_flag', 'age', 'gender', 'incomeValue',
             'salary_6to12m_avg', 'hdb_bki_total_max_limit', 'hdb_bki_total_products',
@@ -94,44 +117,38 @@ def predict(request: PredictRequest):
         ]
         df = fill_missing_columns_optimized(df, raw_cols_needed)
 
-        # FE
+        # 2. FE
         try:
             df = add_fe_block(df)
         except Exception as e:
             logger.warning(f"FE failed: {e}")
 
-        # Дополняем все фичи перед препроцессингом
         df = fill_missing_columns_optimized(df, feature_cols)
 
-        # Preprocessing
-        # prepare_features вернет X в правильном порядке колонок
+        # 3. Preprocessing
         X, _, _, _, _ = prepare_features(
             df,
             feature_cols=feature_cols,
             fit_stats=fit_stats
         )
 
-        # --- ФИНАЛЬНЫЙ ФИКС ТИПОВ ---
-        # Проходимся по тем колонкам, которые МОДЕЛЬ считает категориальными
+        # 4. Фикс категорий для CatBoost
         for col in model_cat_features:
             if col in X.columns:
-                # Превращаем всё в строки.
-                # 0.0 -> "0.0", NaN -> "nan" -> "missing"
                 X[col] = X[col].astype(str)
                 X.loc[X[col] == 'nan', col] = 'missing'
                 X.loc[X[col] == 'None', col] = 'missing'
 
-        # Predict
+        # 5. Predict
         y_pred = model.predict(X)
         prediction_value = y_pred[0]
 
         if meta.get("target_transform") == "log1p":
             prediction_value = np.expm1(prediction_value)
 
-        # SHAP
+        # 6. SHAP
         top_factors = []
         try:
-            # Для SHAP тоже нужно убедиться, что типы правильные
             shap_pool = Pool(data=X, cat_features=model_cat_features)
             shap_values = model.get_feature_importance(data=shap_pool, type='ShapValues')
             features_shap = shap_values[0][:-1]
@@ -146,7 +163,7 @@ def predict(request: PredictRequest):
                     })
 
             contributions.sort(key=lambda x: abs(x["value"]), reverse=True)
-            top_factors = contributions[:20]
+            top_factors = contributions[:20]  # Берем топ-20 для фронта
         except Exception as shap_e:
             logger.warning(f"SHAP failed: {shap_e}")
 

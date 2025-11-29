@@ -71,8 +71,8 @@ const menuItems = [
 
         <!-- Текст (виден только при раскрытии) -->
         <div class="ml-3 transition-opacity duration-300" :class="isExpanded ? 'opacity-100' : 'opacity-0 w-0'">
-          <div class="font-bold text-[#0B1F35] tracking-wide text-lg leading-none dark:text-white">АЛЬФА</div>
-          <div class="text-[10px] text-[#EF3124] uppercase tracking-[0.2em] font-bold mt-1">AI System</div>
+          <div class="font-bold text-[#0B1F35] tracking-wide text-lg leading-none dark:text-white">Alfa</div>
+          <div class="text-[10px] text-[#EF3124] uppercase tracking-[0.2em] font-bold mt-1">HORIZON</div>
         </div>
 
         <!-- Кнопка ЗАКРЕПЛЕНИЯ (Видна только когда меню раскрыто) -->

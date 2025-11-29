@@ -27,6 +27,16 @@ export interface PredictionResponse {
   }>;
 }
 
+export interface AnalyticsData {
+  totalClients: number;
+  avgIncome: number;
+  totalPortfolio: number;
+  segments: { Mass: number; Middle: number; Premium: number };
+  risks: { Low: number; Medium: number; High: number };
+  incomeDist: Record<string, number>;
+  topRegions: Array<{ name: string; count: number }>;
+}
+
 export interface ClientListItem {
   id: string;
   name: string;
@@ -45,6 +55,11 @@ export const apiClient = {
 
   async getClients(): Promise<ClientListItem[]> {
     const response = await axios.get(`${API_URL}/clients`);
+    return response.data;
+  },
+
+  async getAnalytics(): Promise<AnalyticsData> {
+    const response = await axios.get(`${API_URL}/analytics`);
     return response.data;
   }
 };

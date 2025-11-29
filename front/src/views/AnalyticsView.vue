@@ -1,134 +1,227 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useSettingsStore } from '../store/settings'
+import { ref, onMounted, computed } from 'vue'
+import { apiClient, type AnalyticsData } from '../services/apiClient'
+import {
+  ChartBarIcon, UsersIcon, BanknotesIcon, GlobeAmericasIcon, ArrowPathIcon
+} from '@heroicons/vue/24/outline'
 import {
   Chart as ChartJS,
-  Title,
-  Tooltip,
-  Legend,
-  BarElement,
-  CategoryScale,
-  LinearScale,
-  ArcElement,
-  PointElement,
-  LineElement
+  Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, ArcElement
 } from 'chart.js'
-import { Doughnut, Line } from 'vue-chartjs'
+import { Bar, Doughnut } from 'vue-chartjs'
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement, PointElement, LineElement)
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement)
 
-const settingsStore = useSettingsStore()
+const loading = ref(true)
+const data = ref<AnalyticsData | null>(null)
 
-// Вычисляем цвет текста для графиков в зависимости от темы
-const textColor = computed(() => settingsStore.theme === 'dark' ? '#FFFFFF' : '#0B1F35')
-const gridColor = computed(() => settingsStore.theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)')
+onMounted(async () => {
+  await loadData()
+})
 
-// 1. График: Сегменты
-const segmentData = {
-  labels: ['Premium', 'Middle', 'Mass'],
-  datasets: [{
-    backgroundColor: ['#0B1F35', '#EF3124', '#9CA3AF'],
-    data: [15, 35, 50],
-    borderWidth: 0
-  }]
+const loadData = async () => {
+  loading.value = true
+  try {
+    data.value = await apiClient.getAnalytics()
+  } finally {
+    setTimeout(() => loading.value = false, 600)
+  }
 }
 
-// Опции делаем вычисляемыми, чтобы они реагировали на смену темы
-const segmentOptions = computed(() => ({
+const formatCurrency = (val: number) =>
+  new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 }).format(val)
+
+const formatNumber = (val: number) =>
+  new Intl.NumberFormat('ru-RU').format(val)
+
+// --- ГРАФИК 1: ГИСТОГРАММА ---
+const incomeChartData = computed(() => {
+  if (!data.value) return { labels: [], datasets: [] }
+  return {
+    labels: Object.keys(data.value.incomeDist),
+    datasets: [{
+      label: 'Клиентов',
+      data: Object.values(data.value.incomeDist),
+      backgroundColor: '#EF3124',
+      borderRadius: 4,
+      barThickness: 30
+    }]
+  }
+})
+
+const incomeChartOptions = {
   responsive: true,
+  maintainAspectRatio: false,
+  plugins: { legend: { display: false } },
+  scales: {
+    y: {
+        grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false },
+        border: { display: false }
+    },
+    x: {
+        grid: { display: false },
+        border: { display: false }
+    }
+  }
+}
+
+// --- ГРАФИК 2: СЕГМЕНТЫ (ПОНЧИК) ---
+const segmentChartData = computed(() => {
+  if (!data.value) return { labels: [], datasets: [] }
+  return {
+    labels: ['Mass', 'Middle', 'Premium'],
+    datasets: [{
+      data: [data.value.segments.Mass, data.value.segments.Middle, data.value.segments.Premium],
+      backgroundColor: ['#9CA3AF', '#EF3124', '#0B1F35'],
+      borderWidth: 0,
+      hoverOffset: 5
+    }]
+  }
+})
+
+const doughnutOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
   cutout: '75%',
   plugins: {
     legend: {
-      position: 'bottom' as const,
-      labels: { color: textColor.value } // Адаптивный цвет
+        // ИСПРАВЛЕНИЕ: Легенда снизу для идеального центрирования
+        position: 'bottom' as const,
+        labels: { usePointStyle: true, boxWidth: 8, padding: 15, font: { size: 11 } }
     }
   },
-  borderColor: settingsStore.theme === 'dark' ? 'transparent' : '#fff'
-}))
-
-// 2. График: Точность
-const accuracyData = {
-  labels: ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн'],
-  datasets: [{
-    label: 'Точность модели (%)',
-    backgroundColor: 'rgba(239, 49, 36, 0.2)',
-    borderColor: '#EF3124',
-    data: [92, 93, 94.5, 94.2, 96, 98],
-    tension: 0.4,
-    fill: true,
-    pointBackgroundColor: '#EF3124'
-  }]
+  layout: { padding: 0 }
 }
 
-const accuracyOptions = computed(() => ({
-  responsive: true,
-  scales: {
-    y: {
-      min: 80,
-      max: 100,
-      grid: { color: gridColor.value },
-      ticks: { color: textColor.value }
-    },
-    x: {
-      grid: { display: false },
-      ticks: { color: textColor.value }
-    }
-  },
-  plugins: {
-    legend: {
-      labels: { color: textColor.value }
-    }
+// --- ГРАФИК 3: РЕГИОНЫ ---
+const regionChartData = computed(() => {
+  if (!data.value) return { labels: [], datasets: [] }
+  return {
+    labels: data.value.topRegions.map(r => r.name),
+    datasets: [{
+      label: 'Клиентов',
+      data: data.value.topRegions.map(r => r.count),
+      backgroundColor: '#0B1F35',
+      borderRadius: 4,
+      barThickness: 12
+    }]
   }
-}))
+})
+
+const regionChartOptions = {
+  indexAxis: 'y' as const,
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: { legend: { display: false } },
+  scales: {
+      x: { display: false },
+      y: {
+          grid: { display: false },
+          border: { display: false },
+          ticks: { font: { size: 11 } }
+      }
+  }
+}
 </script>
 
 <template>
   <div class="animate-fade-in-up pb-10">
-    <h1 class="text-3xl font-bold text-[#0B1F35] mb-8 dark:text-white">Аналитика портфеля</h1>
 
-    <!-- KPI Карточки: dark:bg-white/5 dark:border-white/10 -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-      <div class="bg-white/70 backdrop-blur-md p-6 rounded-2xl shadow-sm border border-white/60 dark:bg-white/5 dark:border-white/10">
-         <div class="text-gray-500 text-sm dark:text-gray-400">Всего клиентов</div>
-         <div class="text-3xl font-bold text-[#0B1F35] mt-2 dark:text-white">14,205</div>
-      </div>
-      <div class="bg-white/70 backdrop-blur-md p-6 rounded-2xl shadow-sm border border-white/60 dark:bg-white/5 dark:border-white/10">
-         <div class="text-gray-500 text-sm dark:text-gray-400">Средний доход</div>
-         <div class="text-3xl font-bold text-[#0B1F35] mt-2 dark:text-white">84.5k ₽</div>
-      </div>
-      <div class="bg-white/70 backdrop-blur-md p-6 rounded-2xl shadow-sm border border-white/60 dark:bg-white/5 dark:border-white/10">
-         <div class="text-gray-500 text-sm dark:text-gray-400">Качество (WMAE)</div>
-         <div class="text-3xl font-bold text-green-600 mt-2 dark:text-green-400">2.4%</div>
-      </div>
-       <div class="bg-white/70 backdrop-blur-md p-6 rounded-2xl shadow-sm border border-white/60 dark:bg-white/5 dark:border-white/10">
-         <div class="text-gray-500 text-sm dark:text-gray-400">Одобрено кредитов</div>
-         <div class="text-3xl font-bold text-[#EF3124] mt-2">~1.2B ₽</div>
-      </div>
+    <!-- HEADER -->
+    <div class="flex justify-between items-end mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-[#0B1F35] dark:text-white">Аналитика портфеля</h1>
+            <p class="text-gray-500 mt-1 dark:text-gray-400">Обзорная статистика по всей базе клиентов</p>
+        </div>
+        <button @click="loadData" class="p-2 bg-white border rounded-xl hover:bg-gray-50 text-gray-500 dark:bg-white/10 dark:border-white/10 dark:text-white dark:hover:bg-white/20 transition">
+            <ArrowPathIcon class="w-5 h-5" :class="loading ? 'animate-spin' : ''" />
+        </button>
     </div>
 
-    <!-- Графики -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- SKELETON -->
+    <div v-if="loading" class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div v-for="i in 4" :key="i" class="h-32 bg-gray-200 rounded-2xl animate-pulse dark:bg-white/5"></div>
+    </div>
 
-      <!-- График 1 -->
-      <div class="bg-white/70 backdrop-blur-md border border-white p-6 rounded-2xl shadow-sm min-h-[400px] dark:bg-white/5 dark:border-white/10">
-         <h3 class="font-bold text-lg mb-4 text-[#0B1F35] dark:text-white">Сегментация базы</h3>
-         <div class="h-[300px] flex justify-center relative">
-            <Doughnut :data="segmentData" :options="segmentOptions" />
-            <!-- Число в центре пончика -->
-            <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                <span class="text-3xl font-bold text-[#0B1F35] dark:text-white">3</span>
-                <span class="text-xs text-gray-500">Сегмента</span>
+    <div v-else-if="data">
+
+        <!-- KPI -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white/80 backdrop-blur-md p-6 rounded-2xl shadow-sm border border-white/60 dark:bg-white/5 dark:border-white/10">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-blue-50 text-blue-600 rounded-lg dark:bg-blue-900/30 dark:text-blue-400"><UsersIcon class="w-5 h-5" /></div>
+                    <span class="text-sm text-gray-500 dark:text-gray-400">Всего клиентов</span>
+                </div>
+                <div class="text-3xl font-bold text-[#0B1F35] dark:text-white">{{ formatNumber(data.totalClients) }}</div>
             </div>
-         </div>
-      </div>
 
-      <!-- График 2 -->
-      <div class="bg-white/70 backdrop-blur-md border border-white p-6 rounded-2xl shadow-sm min-h-[400px] dark:bg-white/5 dark:border-white/10">
-         <h3 class="font-bold text-lg mb-4 text-[#0B1F35] dark:text-white">Динамика качества модели</h3>
-         <div class="h-[300px]">
-            <Line :data="accuracyData" :options="accuracyOptions" />
-         </div>
-      </div>
+            <div class="bg-white/80 backdrop-blur-md p-6 rounded-2xl shadow-sm border border-white/60 dark:bg-white/5 dark:border-white/10">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-green-50 text-green-600 rounded-lg dark:bg-green-900/30 dark:text-green-400"><BanknotesIcon class="w-5 h-5" /></div>
+                    <span class="text-sm text-gray-500 dark:text-gray-400">Средний доход</span>
+                </div>
+                <div class="text-3xl font-bold text-[#0B1F35] dark:text-white">{{ formatCurrency(data.avgIncome) }}</div>
+            </div>
+
+            <div class="bg-white/80 backdrop-blur-md p-6 rounded-2xl shadow-sm border border-white/60 dark:bg-white/5 dark:border-white/10">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-red-50 text-red-600 rounded-lg dark:bg-red-900/30 dark:text-red-400"><ChartBarIcon class="w-5 h-5" /></div>
+                    <span class="text-sm text-gray-500 dark:text-gray-400">Портфель (мес.)</span>
+                </div>
+                <div class="text-3xl font-bold text-[#0B1F35] dark:text-white">{{ (data.totalPortfolio / 1000000000).toFixed(2) }} млрд ₽</div>
+            </div>
+
+            <div class="bg-white/80 backdrop-blur-md p-6 rounded-2xl shadow-sm border border-white/60 dark:bg-white/5 dark:border-white/10">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-purple-50 text-purple-600 rounded-lg dark:bg-purple-900/30 dark:text-purple-400"><GlobeAmericasIcon class="w-5 h-5" /></div>
+                    <span class="text-sm text-gray-500 dark:text-gray-400">Регионов</span>
+                </div>
+                <div class="text-3xl font-bold text-[#0B1F35] dark:text-white">{{ data.topRegions.length }}+</div>
+            </div>
+        </div>
+
+        <!-- CHARTS GRID -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+
+            <!-- 1. Income -->
+            <div class="lg:col-span-2 bg-white/80 backdrop-blur-md p-6 rounded-2xl shadow-sm border border-white/60 dark:bg-white/5 dark:border-white/10 flex flex-col">
+                <h3 class="font-bold text-[#0B1F35] mb-6 dark:text-white">Распределение по доходам</h3>
+                <div class="flex-1 min-h-[400px]">
+                    <Bar :data="incomeChartData" :options="incomeChartOptions" />
+                </div>
+            </div>
+
+            <!-- 2. Segments & Regions -->
+            <div class="bg-white/80 backdrop-blur-md p-6 rounded-2xl shadow-sm border border-white/60 dark:bg-white/5 dark:border-white/10 flex flex-col justify-between">
+
+                <!-- Пончик -->
+                <div>
+                    <h3 class="font-bold text-[#0B1F35] mb-4 dark:text-white">Сегментация</h3>
+                    <!-- Увеличил высоту до 250px для легенды снизу -->
+                    <div class="h-[250px] flex justify-center relative">
+                        <Doughnut :data="segmentChartData" :options="doughnutOptions" />
+
+                        <!-- Текст по центру -->
+                        <!-- ИСПРАВЛЕНИЕ: Убран pr-12, теперь центрируется идеально -->
+                        <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none pb-8">
+                            <span class="text-3xl font-bold text-[#0B1F35] dark:text-white">{{ Math.round(data.segments.Premium / data.totalClients * 100) }}%</span>
+                            <span class="text-[10px] text-gray-400 uppercase tracking-widest">Premium</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-100 my-2 dark:border-white/10"></div>
+
+                <!-- Регионы -->
+                <div>
+                    <h4 class="font-bold text-sm mb-4 dark:text-white">Топ регионов</h4>
+                    <div class="h-[150px]">
+                        <Bar :data="regionChartData" :options="regionChartOptions" />
+                    </div>
+                </div>
+            </div>
+
+        </div>
 
     </div>
   </div>

@@ -1,21 +1,16 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useSettingsStore } from '../store/settings' // <-- Подключаем стор
+import { useSettingsStore } from '../store/settings'
 import { useNotification } from '../composables/useNotification'
 import {
-  ComputerDesktopIcon,
-  BellIcon,
-  ShieldCheckIcon,
-  ArrowPathIcon,
-  MoonIcon,
-  SunIcon
+  ComputerDesktopIcon, BellIcon, ShieldCheckIcon,
+  ArrowPathIcon, MoonIcon, SunIcon, SwatchIcon
 } from '@heroicons/vue/24/outline'
 
 const settingsStore = useSettingsStore()
 const { show } = useNotification()
 const loading = ref(false)
 
-// Сохранение (теперь это скорее имитация, т.к. Pinia сохраняет мгновенно)
 const saveSettings = async () => {
   loading.value = true
   setTimeout(() => {
@@ -31,151 +26,149 @@ const clearCache = () => {
 </script>
 
 <template>
-  <div class="animate-fade-in-up max-w-5xl mx-auto pb-10">
+  <div class="animate-fade-in-up max-w-4xl mx-auto pb-10">
 
-    <div class="mb-8">
-      <h1 class="text-3xl font-bold text-[#0B1F35] dark:text-white">Настройки системы</h1>
-      <p class="text-gray-500 mt-1">Персонализация интерфейса и параметры безопасности</p>
+    <div class="mb-10">
+      <h1 class="text-3xl font-bold text-[#0B1F35] dark:text-white">Настройки</h1>
+      <p class="text-gray-500 mt-1 dark:text-gray-400">Персонализация и безопасность</p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+    <!-- MAIN GRID -->
+    <div class="space-y-6">
 
-      <!-- ЛЕВАЯ КОЛОНКА -->
-      <div class="md:col-span-8 space-y-6">
+      <!-- SECTION 1: APPEARANCE -->
+      <div class="bg-white/70 backdrop-blur-md border border-white/60 p-6 rounded-3xl shadow-sm dark:bg-white/5 dark:border-white/10">
+         <div class="flex items-center gap-3 mb-6">
+            <div class="p-2 bg-blue-50 text-blue-600 rounded-xl dark:bg-blue-900/30 dark:text-blue-400"><SwatchIcon class="w-6 h-6" /></div>
+            <h2 class="text-xl font-bold text-[#0B1F35] dark:text-white">Внешний вид</h2>
+         </div>
 
-        <!-- Секция 1: Интерфейс -->
-        <div class="bg-white/70 backdrop-blur-md border border-white p-6 rounded-2xl shadow-sm dark:bg-white/5 dark:border-gray-700">
-           <h2 class="text-lg font-bold text-[#0B1F35] flex items-center gap-2 mb-4 dark:text-white">
-              <ComputerDesktopIcon class="w-5 h-5 text-[#EF3124]" />
-              Внешний вид
-           </h2>
-
-           <div class="space-y-4">
-              <!-- ТЕМА -->
-              <div class="flex items-center justify-between p-3 bg-white/50 rounded-xl border border-gray-100 dark:bg-gray-900/50 dark:border-gray-700">
-                 <div class="flex items-center gap-3">
-                    <div class="p-2 bg-gray-100 rounded-lg dark:bg-gray-800">
-                       <SunIcon v-if="settingsStore.theme === 'light'" class="w-5 h-5 text-orange-500" />
-                       <MoonIcon v-else class="w-5 h-5 text-indigo-400" />
+         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Theme Card -->
+            <div class="p-4 rounded-2xl border border-gray-100 dark:border-white/5 bg-white/50 dark:bg-white/5 flex justify-between items-center cursor-pointer transition hover:border-gray-300 dark:hover:border-white/20"
+                 @click="settingsStore.toggleTheme">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center transition-colors"
+                         :class="settingsStore.theme === 'light' ? 'bg-orange-100 text-orange-500' : 'bg-gray-700 text-gray-400'">
+                        <SunIcon class="w-6 h-6" />
                     </div>
                     <div>
-                       <div class="font-medium text-[#0B1F35] dark:text-gray-200">Тема оформления</div>
-                       <div class="text-xs text-gray-500">
-                         {{ settingsStore.theme === 'light' ? 'Светлая тема' : 'Темная тема' }}
-                       </div>
+                        <div class="font-bold text-[#0B1F35] dark:text-white">Светлая</div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400">Классический вид</div>
                     </div>
-                 </div>
-
-                 <!-- Реальный переключатель темы -->
-                 <div class="flex bg-gray-200 p-1 rounded-lg cursor-pointer dark:bg-gray-700" @click="settingsStore.toggleTheme">
-                    <button
-                      class="px-3 py-1 rounded-md text-xs font-bold transition-all"
-                      :class="settingsStore.theme === 'light' ? 'bg-white shadow-sm text-gray-800' : 'text-gray-500'"
-                    >Light</button>
-                    <button
-                      class="px-3 py-1 rounded-md text-xs font-bold transition-all"
-                      :class="settingsStore.theme === 'dark' ? 'bg-gray-600 shadow-sm text-white' : 'text-gray-500'"
-                    >Dark</button>
-                 </div>
-              </div>
-
-              <!-- КОМПАКТНЫЙ РЕЖИМ -->
-              <div class="flex items-center justify-between p-3 bg-white/50 rounded-xl border border-gray-100 dark:bg-gray-900/50 dark:border-gray-700">
-                 <div>
-                    <div class="font-medium text-[#0B1F35] dark:text-gray-200">Компактный режим</div>
-                    <div class="text-xs text-gray-500">Уменьшить отступы в интерфейсе</div>
-                 </div>
-                 <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" :checked="settingsStore.compactMode" @change="settingsStore.toggleCompact" class="sr-only peer">
-                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#EF3124]"></div>
-                 </label>
-              </div>
-           </div>
-        </div>
-
-        <!-- Секция 2: Уведомления -->
-        <div class="bg-white/70 backdrop-blur-md border border-white p-6 rounded-2xl shadow-sm dark:bg-white/5 dark:border-gray-700">
-           <h2 class="text-lg font-bold text-[#0B1F35] flex items-center gap-2 mb-4 dark:text-white">
-              <BellIcon class="w-5 h-5 text-[#EF3124]" />
-              Уведомления
-           </h2>
-
-           <div class="space-y-4 divide-y divide-gray-100 dark:divide-gray-700">
-              <div class="flex items-center justify-between py-2">
-                 <span class="text-gray-700 dark:text-gray-300">Email рассылка</span>
-                 <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" v-model="settingsStore.notifications.email" class="sr-only peer">
-                    <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#EF3124]"></div>
-                 </label>
-              </div>
-              <div class="flex items-center justify-between py-2">
-                 <span class="text-gray-700 dark:text-gray-300">Push-уведомления</span>
-                 <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" v-model="settingsStore.notifications.push" class="sr-only peer">
-                    <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#EF3124]"></div>
-                 </label>
-              </div>
-           </div>
-        </div>
-
-      </div>
-
-      <!-- ПРАВАЯ КОЛОНКА -->
-      <div class="md:col-span-4 space-y-6">
-
-        <!-- Безопасность -->
-        <div class="bg-white/70 backdrop-blur-md border border-white p-6 rounded-2xl shadow-sm dark:bg-white/5 dark:border-gray-700">
-           <h2 class="text-lg font-bold text-[#0B1F35] flex items-center gap-2 mb-4 dark:text-white">
-              <ShieldCheckIcon class="w-5 h-5 text-[#EF3124]" />
-              Безопасность
-           </h2>
-
-           <form @submit.prevent class="space-y-3">
-              <div>
-                <label class="text-xs text-gray-500 font-medium">Новый пароль</label>
-                <input type="password" class="w-full px-3 py-2 bg-white/50 border border-gray-200 rounded-lg text-sm focus:border-[#EF3124] outline-none dark:bg-gray-900/50 dark:border-gray-600 dark:text-white">
-              </div>
-              <button class="w-full py-2 bg-gray-100 text-gray-600 text-sm font-bold rounded-lg hover:bg-gray-200 transition dark:bg-gray-700 dark:text-gray-200">
-                Обновить пароль
-              </button>
-           </form>
-
-           <div class="mt-6 pt-4 border-t border-gray-100 dark:border-gray-700">
-              <div class="flex items-center justify-between mb-2">
-                 <span class="text-sm font-medium dark:text-gray-200">2FA Авторизация</span>
-                 <input type="checkbox" checked class="accent-[#EF3124] w-4 h-4">
-              </div>
-              <p class="text-xs text-gray-400">Требовать код из SMS</p>
-           </div>
-        </div>
-
-        <!-- Система -->
-        <div class="bg-white/70 backdrop-blur-md border border-white p-6 rounded-2xl shadow-sm dark:bg-white/5 dark:border-gray-700">
-            <h2 class="text-lg font-bold text-[#0B1F35] mb-4 dark:text-white">Система</h2>
-            <button
-              @click="clearCache"
-              class="w-full py-2 flex items-center justify-center gap-2 border border-gray-300 rounded-xl text-gray-600 hover:bg-white hover:text-[#EF3124] hover:border-[#EF3124] transition text-sm font-medium dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
-            >
-              <ArrowPathIcon class="w-4 h-4" />
-              Очистить кэш
-            </button>
-            <div class="text-center mt-3 text-xs text-gray-400">
-               Версия: v2.0.4 (Beta)
+                </div>
+                <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center"
+                     :class="settingsStore.theme === 'light' ? 'border-[#EF3124] bg-[#EF3124]' : 'border-gray-300 dark:border-gray-600'">
+                     <div v-if="settingsStore.theme === 'light'" class="w-2 h-2 bg-white rounded-full"></div>
+                </div>
             </div>
-        </div>
 
+            <!-- Dark Theme Card -->
+            <div class="p-4 rounded-2xl border border-gray-100 dark:border-white/5 bg-white/50 dark:bg-white/5 flex justify-between items-center cursor-pointer transition hover:border-gray-300 dark:hover:border-white/20"
+                 @click="settingsStore.toggleTheme">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center transition-colors"
+                         :class="settingsStore.theme === 'dark' ? 'bg-indigo-100 text-indigo-500' : 'bg-gray-200 text-gray-400'">
+                        <MoonIcon class="w-6 h-6" />
+                    </div>
+                    <div>
+                        <div class="font-bold text-[#0B1F35] dark:text-white">Темная</div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400">Для работы ночью</div>
+                    </div>
+                </div>
+                <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center"
+                     :class="settingsStore.theme === 'dark' ? 'border-[#EF3124] bg-[#EF3124]' : 'border-gray-300 dark:border-gray-600'">
+                     <div v-if="settingsStore.theme === 'dark'" class="w-2 h-2 bg-white rounded-full"></div>
+                </div>
+            </div>
+         </div>
+
+         <div class="mt-6 pt-6 border-t border-gray-100 dark:border-white/10 flex items-center justify-between">
+             <div>
+                <div class="font-bold text-[#0B1F35] dark:text-white">Компактный режим</div>
+                <div class="text-xs text-gray-500 dark:text-gray-400">Уменьшить отступы в таблицах</div>
+             </div>
+             <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" :checked="settingsStore.compactMode" @change="settingsStore.toggleCompact" class="sr-only peer">
+                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#EF3124] dark:bg-gray-700"></div>
+             </label>
+         </div>
       </div>
+
+      <!-- SECTION 2: NOTIFICATIONS -->
+      <div class="bg-white/70 backdrop-blur-md border border-white/60 p-6 rounded-3xl shadow-sm dark:bg-white/5 dark:border-white/10">
+         <div class="flex items-center gap-3 mb-6">
+            <div class="p-2 bg-purple-50 text-purple-600 rounded-xl dark:bg-purple-900/30 dark:text-purple-400"><BellIcon class="w-6 h-6" /></div>
+            <h2 class="text-xl font-bold text-[#0B1F35] dark:text-white">Уведомления</h2>
+         </div>
+
+         <div class="space-y-4">
+            <div class="flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl transition dark:hover:bg-white/5">
+                <span class="text-gray-700 font-medium dark:text-gray-200">Email рассылка</span>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" v-model="settingsStore.notifications.email" class="sr-only peer">
+                    <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#EF3124] dark:bg-gray-700"></div>
+                </label>
+            </div>
+            <div class="flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl transition dark:hover:bg-white/5">
+                <span class="text-gray-700 font-medium dark:text-gray-200">Push-уведомления</span>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" v-model="settingsStore.notifications.push" class="sr-only peer">
+                    <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#EF3124] dark:bg-gray-700"></div>
+                </label>
+            </div>
+         </div>
+      </div>
+
+      <!-- SECTION 3: SECURITY & SYSTEM -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="bg-white/70 backdrop-blur-md border border-white/60 p-6 rounded-3xl shadow-sm dark:bg-white/5 dark:border-white/10">
+             <div class="flex items-center gap-3 mb-6">
+                <div class="p-2 bg-green-50 text-green-600 rounded-xl dark:bg-green-900/30 dark:text-green-400"><ShieldCheckIcon class="w-6 h-6" /></div>
+                <h2 class="text-xl font-bold text-[#0B1F35] dark:text-white">Безопасность</h2>
+             </div>
+             <div class="space-y-3">
+                <button class="w-full py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-700 font-bold hover:bg-gray-100 transition dark:bg-white/5 dark:border-white/10 dark:text-white dark:hover:bg-white/10">
+                    Сменить пароль
+                </button>
+                <div class="flex items-center justify-between px-2">
+                    <span class="text-sm text-gray-500 dark:text-gray-400">2FA Авторизация</span>
+                    <span class="text-sm font-bold text-green-600 dark:text-green-400">Активно</span>
+                </div>
+             </div>
+          </div>
+
+          <div class="bg-white/70 backdrop-blur-md border border-white/60 p-6 rounded-3xl shadow-sm dark:bg-white/5 dark:border-white/10 flex flex-col justify-between">
+             <div class="flex items-center gap-3 mb-4">
+                <div class="p-2 bg-gray-100 text-gray-600 rounded-xl dark:bg-gray-700 dark:text-gray-300"><ComputerDesktopIcon class="w-6 h-6" /></div>
+                <h2 class="text-xl font-bold text-[#0B1F35] dark:text-white">Система</h2>
+             </div>
+
+             <div class="text-center mb-4">
+                 <div class="text-sm text-gray-500 dark:text-gray-400">Версия приложения</div>
+                 <div class="text-lg font-mono font-bold text-[#0B1F35] dark:text-white">v2.1.0 (Stable)</div>
+             </div>
+
+             <button
+                @click="clearCache"
+                class="w-full py-3 border border-red-200 text-red-600 rounded-xl font-bold hover:bg-red-50 transition flex items-center justify-center gap-2 dark:border-red-900/50 dark:bg-red-900/10 dark:hover:bg-red-900/30"
+             >
+                <ArrowPathIcon class="w-5 h-5" /> Сбросить кэш
+             </button>
+          </div>
+      </div>
+
     </div>
 
-    <!-- Кнопка сохранения -->
-    <div class="flex justify-end mt-8">
+    <!-- Floating Save Button -->
+    <div class="fixed bottom-8 right-8 z-30">
        <button
          @click="saveSettings"
          :disabled="loading"
-         class="bg-[#0B1F35] text-white px-8 py-3 rounded-xl font-bold shadow-xl hover:bg-black transition flex items-center gap-2 hover:scale-105 active:scale-95 dark:bg-[#EF3124]"
+         class="bg-[#0B1F35] text-white px-8 py-4 rounded-full font-bold shadow-2xl hover:bg-black transition flex items-center gap-3 hover:scale-105 active:scale-95 dark:bg-white dark:text-[#0B1F35]"
        >
-         <span v-if="loading" class="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span>
-         <span v-else>Сохранить изменения</span>
+         <span v-if="loading" class="animate-spin h-5 w-5 border-2 border-current border-t-transparent rounded-full"></span>
+         <span v-else>Сохранить</span>
        </button>
     </div>
 
