@@ -1,0 +1,21 @@
+признак,описание,tag
+salary_6to12m_avg,Усреднённая ЗП клиента за окно в минимум 6 месяцев и максимум 12 месяцев,income_related
+incomeValue,Значение дохода абонента,income_related
+dp_ils_avg_salary_1y,данные цифрового профиля,income_related
+dp_ils_avg_salary_2y,данные цифрового профиля,income_related
+incomeValueCategory,Категория дохода абонента,income_related
+dp_ils_salary_ratio_1y3y,данные цифрового профиля,income_related
+per_capita_income_rur_amt,Среднедушевой доход в регионе клиента по Росстату,income_related
+dp_payoutincomedata_payout_avg_3_month,данные цифрового профиля,income_related
+dp_payoutincomedata_payout_max_3_month,данные цифрового профиля,income_related
+dp_payoutincomedata_payout_sum_3_month,данные цифрового профиля,income_related
+dp_payoutincomedata_payout_max_6_month,данные цифрового профиля,income_related
+profit_income_out_rur_amt_12m,Средний операционный доход за 12 месяцев до даты расчета,income_related
+profit_income_out_rur_amt_9m,Средний операционный доход за 9 месяцев до даты расчета,income_related
+salary_median_in_gex_r1,гео данные,income_related
+dp_payoutincomedata_payout_avg_prev_year,данные цифрового профиля,income_related
+dp_payoutincomedata_payout_avg_6_month,данные цифрового профиля,income_related
+dp_ils_avg_salary_3y,данные цифрового профиля,income_related
+profit_income_out_rur_amt_l2m,Операционный доход Profit3 (на месяц T-4) где Т -- месяц оттока,income_related
+accountsalary_out_flag,Признак наличия зарплатного счета у клиента на момент последней активности,income_related
+first_salary_income,внешние данные,income_related
