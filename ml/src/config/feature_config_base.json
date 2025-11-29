@@ -1,0 +1,168 @@
+{
+  "version": "0.1.0",
+  "description": "Базовый конфиг фич на основе первичного EDA. Остальные числовые фичи по умолчанию считаются numeric.",
+  "meta_columns": {
+    "id_columns": ["id"],
+    "date_columns": ["dt"],
+    "target_columns": ["target"],
+    "weight_columns": ["w"]
+  },
+  "drop_columns": [],
+  "defaults": {
+    "numeric": {
+      "impute_strategy": "median",
+      "clip": null
+    },
+    "numeric_from_string": {
+      "impute_strategy": "median",
+      "clip": null
+    },
+    "categorical_low_card": {
+      "impute_strategy": "missing_category"
+    },
+    "categorical_high_card": {
+      "impute_strategy": "missing_category"
+    }
+  },
+  "features": {
+    "gender": {
+      "type": "categorical_low_card",
+      "impute_strategy": "missing_category",
+      "allowed_values_example": ["Женский", "Мужской"]
+    },
+    "adminarea": {
+      "type": "categorical_low_card",
+      "impute_strategy": "missing_category",
+      "comment": "Регион, ~85 уникальных значений"
+    },
+    "city_smart_name": {
+      "type": "categorical_low_card",
+      "impute_strategy": "missing_category",
+      "comment": "Город, ~105 уникальных значений"
+    },
+    "dp_ewb_last_employment_position": {
+      "type": "categorical_high_card",
+      "impute_strategy": "missing_category",
+      "comment": "Должность, ~6000 уникальных значений"
+    },
+    "hdb_bki_total_max_limit": {
+      "type": "numeric_from_string",
+      "impute_strategy": "median",
+      "comment": "Общий лимит по BKI (как строка)"
+    },
+    "hdb_bki_total_cc_max_limit": {
+      "type": "numeric_from_string",
+      "impute_strategy": "median"
+    },
+    "hdb_bki_total_pil_max_limit": {
+      "type": "numeric_from_string",
+      "impute_strategy": "median"
+    },
+    "hdb_bki_active_cc_max_limit": {
+      "type": "numeric_from_string",
+      "impute_strategy": "median"
+    },
+    "hdb_bki_other_active_pil_outstanding": {
+      "type": "numeric_from_string",
+      "impute_strategy": "median"
+    },
+    "hdb_bki_total_products": {
+      "type": "numeric_from_string",
+      "impute_strategy": "median"
+    },
+    "hdb_bki_total_max_overdue_sum": {
+      "type": "numeric_from_string",
+      "impute_strategy": "median"
+    },
+    "addrref": {
+      "type": "categorical_high_card",
+      "impute_strategy": "missing_category",
+      "comment": "Адресный справочник (id адреса или кластера)"
+    },
+    "dp_address_unique_regions": {
+      "type": "numeric_from_string",
+      "impute_strategy": "median",
+      "comment": "Количество уникальных регионов в адресах"
+    },
+    "period_last_act_ad": {
+      "type": "numeric_from_string",
+      "impute_strategy": "median",
+      "comment": "Период с последнего акта/события"
+    },
+    "hdb_bki_total_pil_last_days": {
+      "type": "numeric_from_string",
+      "impute_strategy": "median"
+    },
+    "hdb_bki_last_product_days": {
+      "type": "numeric_from_string",
+      "impute_strategy": "median"
+    },
+    "first_salary_income": {
+      "type": "numeric",
+      "impute_strategy": "median",
+      "leakage_risk": true,
+      "comment": "Первый доход по зарплатному проекту, возможная утечка"
+    },
+    "salary_6to12m_avg": {
+      "type": "numeric",
+      "impute_strategy": "median",
+      "comment": "Средняя зарплата за 6–12 месяцев"
+    },
+    "turn_cur_cr_avg_act_v2": {
+      "type": "numeric",
+      "impute_strategy": "median"
+    },
+    "transaction_category_supermarket_sum_cnt_d15": {
+      "type": "numeric",
+      "impute_strategy": "median"
+    },
+    "loan_cur_amt": {
+      "type": "numeric",
+      "impute_strategy": "median",
+      "comment": "Текущий объём кредитов"
+    },
+    "avg_balance_rur_amt_1m_af": {
+      "type": "numeric",
+      "impute_strategy": "median"
+    },
+    "dp_payoutincomedata_payout_avg_prev_year": {
+      "type": "numeric",
+      "impute_strategy": "median",
+      "leakage_risk": true
+    },
+    "dp_payoutincomedata_payout_avg_6_month": {
+      "type": "numeric",
+      "impute_strategy": "median",
+      "leakage_risk": true
+    },
+    "dp_payoutincomedata_payout_max_6_month": {
+      "type": "numeric",
+      "impute_strategy": "median",
+      "leakage_risk": true
+    },
+    "dp_payoutincomedata_payout_sum_3_month": {
+      "type": "numeric",
+      "impute_strategy": "median",
+      "leakage_risk": true
+    },
+    "dp_payoutincomedata_payout_max_3_month": {
+      "type": "numeric",
+      "impute_strategy": "median",
+      "leakage_risk": true
+    },
+    "dp_payoutincomedata_payout_avg_3_month": {
+      "type": "numeric",
+      "impute_strategy": "median",
+      "leakage_risk": true
+    }
+  },
+  "leakage_risk_features": [
+    "first_salary_income",
+    "dp_payoutincomedata_payout_avg_prev_year",
+    "dp_payoutincomedata_payout_avg_6_month",
+    "dp_payoutincomedata_payout_max_6_month",
+    "dp_payoutincomedata_payout_sum_3_month",
+    "dp_payoutincomedata_payout_max_3_month",
+    "dp_payoutincomedata_payout_avg_3_month"
+  ]
+}
