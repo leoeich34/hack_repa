@@ -99,5 +99,9 @@ project-root/
 
 ---
 
-Designed by **[d0ramilK1SS]** for Alfa Hackathon 2025.
+Designed by **[d0ramilK1SS]** for Alfa Hackathon 2025:
+Александр Белянчиков - Frontend-разработчик
+Лев Возиянов - Data Analyst
+Денис Нгуен - Data Scientist
+Даниил Прельский - Backend-разработчик
 ```
