@@ -1,107 +1,84 @@
-# 🚀 ALFA HORIZON — Предиктивная система скоринга
+# Alfa Horizon: Income Prediction and Scoring MVP
 
-**Alfa Horizon** — это интеллектуальная платформа для менеджеров Альфа-Банка, которая прогнозирует доход клиентов, оценивает риски и формирует персонализированные финансовые предложения в режиме реального времени.
+Alfa Horizon is a team project for Alfa Hackathon 2025. The product prototype helps a bank manager estimate a client's income, inspect risk factors, and generate personalized product offers from a single dashboard.
 
-Решение объединяет мощь машинного обучения (**CatBoost**) с современным интерактивным интерфейсом (**Vue 3**).
+My role: Data Analyst. I worked on the ML/data part of the solution: feature preparation, CatBoost validation, prediction service integration, and analytics artifacts for the dashboard.
 
-![Dashboard Preview](https://via.placeholder.com/1200x600?text=Alfa+Horizon+Dashboard)
+## Highlights
 
-## 🌟 Ключевые возможности
+- Built an income prediction pipeline with CatBoostRegressor for tabular client and transaction data.
+- Prepared feature engineering flow for cleaned train/test datasets and model inference.
+- Validated the model on a time-based holdout with WMAE as the target metric.
+- Integrated the ML service with a FastAPI endpoint used by the Node.js backend and Vue dashboard.
+- Added SHAP-based factor output in the Python service for explainable prediction cards.
 
-### 🧠 ML & Аналитика
-*   **Точный прогноз дохода:** Модель CatBoostRegressor обучена на обогащенном датасете.
-*   **Explainable AI (SHAP):** Визуализация факторов влияния. Менеджер видит, *почему* система предсказала именно такой доход (зарплата, транзакции, БКИ).
-*   **Интеграция с CSV:** Система автоматически подтягивает реальные профили клиентов из `income_test_clean.csv` и результаты сабмита.
+## Model Result
 
-### 💼 Бизнес-инструменты
-*   **Симулятор «Что-Если»:** Интерактивная панель. Менеджер может менять доход, расходы и долговую нагрузку клиента, мгновенно пересчитывая скоринг и предложения.
-*   **Умные рекомендации:** Матрица из **18 продуктов** (Ипотека, Инвестиции, Premium, Детские карты), которые предлагаются в зависимости от сегмента и риска.
-*   **Кредитное досье (PDF):** Генерация официального отчета для печати одним кликом.
-*   **Экспорт в Excel:** Выгрузка отфильтрованной базы клиентов.
+| Metric | Value |
+| --- | ---: |
+| Validation metric | WMAE |
+| Validation WMAE | 69,077.82 |
+| Model | CatBoostRegressor |
+| Feature set | 225 features |
+| Categorical features | 27 |
 
-### 🎨 UI/UX нового поколения
-*   **Dark Mode:** Полная поддержка темной темы.
-*   **Glassmorphism:** Современный дизайн с эффектом стекла.
-*   **Динамический интерфейс:** Анимированные 3D-объекты, живые графики (Chart.js), адаптивная верстка.
+The metric is stored in `ml/models/catboost_full_fe_meta.json` and was calculated on the internal validation split.
 
----
+## Stack
 
-## 🛠 Технический стек
+- ML/Data: Python, pandas, NumPy, CatBoost, feature engineering, WMAE validation.
+- API: FastAPI for model inference, Node.js/Express as an API layer.
+- Frontend: Vue 3, TypeScript, Vite, Pinia, Chart.js.
+- Product prototype: client dashboard, income prediction, product recommendation logic, PDF/Excel export.
 
-*   **Frontend:** Vue 3, TypeScript, Vite, Tailwind CSS, Pinia, Chart.js, SheetJS, HTML2PDF.
-*   **Backend:** Node.js, Express, TypeScript (API Gateway, Business Logic).
-*   **ML Service:** Python, FastAPI, CatBoost, Pandas, Numpy.
+## Architecture
 
+```text
+front/       Vue 3 dashboard and manager UI
+back/        Node.js API layer and business logic
+ml/          CatBoost training, feature processing, FastAPI inference
+docs/        Contracts and supporting project notes
+```
 
-## 🚀 Установка и запуск
+## Local Run
 
-Для работы требуется **Node.js** (v16+) и **Python** (v3.9+).
+Requirements: Node.js 16+, Python 3.9+.
 
-### 1. Подготовка данных
-Убедитесь, что файлы датасета находятся по пути:
-- `ml/data/raw/income_test_clean.csv` (Данные клиентов)
-- `ml/models/catboost_full_fe.cbm` (Обученная модель)
-
-### 2. Запуск ML Сервиса (Python)
-Откройте терминал в папке `ml`:
+Start the ML service:
 
 ```bash
 cd ml
-# Создание виртуального окружения (рекомендуется)
 python -m venv venv
-source venv/bin/activate  # Для Linux/Mac
-# venv\Scripts\activate   # Для Windows
-
-# Установка зависимостей
+source venv/bin/activate
 pip install -r requirements.txt
-
-# Запуск сервера (Port 8000)
 uvicorn src.service.app:app --reload --port 8000
 ```
 
-### 3. Запуск Бэкенда (Node.js)
-Откройте **второй** терминал в папке `back`:
+Start the backend:
 
 ```bash
 cd back
 npm install
-# Запуск сервера (Port 3000)
 npm run dev
 ```
 
-### 4. Запуск Фронтенда (Vue)
-Откройте **третий** терминал в папке `front`:
+Start the frontend:
 
 ```bash
 cd front
 npm install
-# Запуск интерфейса (обычно Port 5173)
 npm run dev
 ```
 
----
+## Data and Model Files
 
-## 📊 Структура проекта
+The repository contains prepared hackathon artifacts required for the demo flow: cleaned data files, trained CatBoost models, generated submissions, and report files. In a production repository these files would normally be moved to object storage, Git LFS, or GitHub Releases.
 
-```text
-project-root/
-├── front/          # Vue 3 приложение (UI, Графики, Симулятор)
-├── back/           # Node.js API (Контроллеры, Логика продуктов, Генерация имен)
-├── ml/             # Python ML (FastAPI сервис, Модели, Препроцессинг)
-└── docs/           # Документация и контракты
-```
+## Team
 
-## 🏆 Особенности реализации
+Project for Alfa Hackathon 2025:
 
-1.  **Отказоустойчивость:** Если ML-сервис недоступен, бэкенд использует фоллбек-генераторы, чтобы интерфейс оставался рабочим.
-2.  **Двойной источник данных:** Приоритет отдается файлам сабмита (`submission_*.csv`), чтобы цифры совпадали с лидербордом.
-3.  **Безопасность:** Встроенная система авторизации (JWT) и ролевая модель (User/Admin).
-
----
-
-Designed by **[d0ramilK1SS]** for Alfa Hackathon 2025:
-Александр Белянчиков - Frontend-разработчик
-Лев Возиянов - Data Analyst
-Денис Нгуен - Data Scientist
-Даниил Прельский - Backend-разработчик
-```
+- Alexander Belyanchikov - Frontend Developer
+- Lev Voziyanov - Data Analyst
+- Denis Nguyen - Data Scientist
+- Daniil Prelsky - Backend Developer

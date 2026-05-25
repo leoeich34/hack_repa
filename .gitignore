@@ -1,23 +1,25 @@
-# Зависимости
+# Dependencies
 node_modules/
 .venv/
 venv/
 
-# Сборки
+# Build and coverage
 dist/
 build/
 coverage/
 
-# IDE и системные файлы (ты сидишь через PyCharm, это важно)
+# IDE and system files
 .idea/
 .vscode/
 *.swp
 .DS_Store
+__pycache__/
+*.py[cod]
 
-# Логи
+# Logs
 *.log
 npm-debug.log*
 
-# Конфиги с секретами
+# Local secrets
 .env
 .env.local
